@@ -12,6 +12,9 @@
         <heuristic file="heuristic.xml">Sequence</heuristic>
         <io file="io.xml" type="multiple">Disk</io>
         <cloud file="cloud.xml">S3</cloud>
+        <port type="text">8889</port>
+        <username type="text">user</username>
+        <password type="text">password</password>
     </instance>
     
 </kerberos>

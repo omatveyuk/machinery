@@ -44,6 +44,9 @@ namespace kerberos
         fd_set master;
         int timeout; // master sock timeout, shutdown after timeout millis.
         int quality; // jpeg compression [1..100]
+        std::string user;
+        std::string password;
+        int port;
 
         int _write( int sock, char *s, int len )
         {
@@ -57,9 +60,12 @@ namespace kerberos
 
     public:
 
-        Stream(int port = 0) : sock(INVALID_SOCKET), timeout(10), quality(50)
+        Stream(int port = 0, std::string user="", std::string pass="") : sock(INVALID_SOCKET), timeout(10), quality(100)
         {
             FD_ZERO( &master );
+            this->password = pass;
+            this->user = user;
+            this->port = port;
             if (port) open(port);
         }
 

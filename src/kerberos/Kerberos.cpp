@@ -171,6 +171,10 @@ namespace kerberos
         // Configure capture
         
         configureCapture(settings);
+
+        // --------------------
+        // configureStream
+        configureStream(settings);
         
         // -------------------
         // Take first images
@@ -191,7 +195,29 @@ namespace kerberos
         machinery->setup(settings);
         machinery->initialize(m_images);
     }
-    
+
+    // ----------------------------------
+    // Configure stream
+    void Kerberos::configureStream(StringMap &settings)
+    {
+        pthread_mutex_lock(&m_streamLock);
+        if(stream != 0)
+        {
+            delete stream;
+        }
+
+        LINFO << "Reading port information: " + settings.at("port");
+        std::istringstream buffer(settings.at("port"));
+        int port;
+        buffer >> port;
+
+        std::string user = settings.at("username");
+        std::string password = settings.at("password");
+
+        LINFO << "Starting stream on port " + helper::to_string(port) + " username " + user;
+        stream = new Stream(port, user, password);
+        pthread_mutex_unlock(&m_streamLock);
+    }
     // ----------------------------------
     // Configure capture device + thread
     

@@ -81,10 +81,10 @@ namespace kerberos
             LERROR << "Stream: couldn't accept connection on sock";
             LINFO << "Stream: reopening master sock";
             release();
-            open(8888);
+            open(port);
             return false;
         }
-        char* control_authentication = "user:passwd";
+        const char* control_authentication = (this->user+ ":" + this->password).c_str();
 
         // lets try to authenticate
         char *userpass = NULL;
@@ -146,7 +146,7 @@ namespace kerberos
 
         maxfd=(maxfd>client?maxfd:client);
         FD_SET( client, &master );
-        _write( client,"HTTP/1.0 400 Bad Request\r\n"
+        _write( client,"HTTP/1.0 200 OK\r\n"
                 "Server: Mozarella/2.2\r\n"
                 "Accept-Range: bytes\r\n"
                 "Max-Age: 0\r\n"
