@@ -45,14 +45,14 @@ namespace kerberos
         int timeout; // master sock timeout, shutdown after timeout millis.
         int quality; // jpeg compression [1..100]
 
-        int _write( int sock, char *s, int len ) 
-        { 
+        int _write( int sock, char *s, int len )
+        {
             if ( len < 1 ) { len = strlen(s); }
-            #if defined(__APPLE_CC__) || defined(BSD)
-                return send(sock, s, len, 0);
-            #elif defined(__linux__)
-                return send(sock, s, len, MSG_NOSIGNAL);
-            #endif
+#if defined(__APPLE_CC__) || defined(BSD)
+            return send(sock, s, len, 0);
+#elif defined(__linux__)
+            return send(sock, s, len, MSG_NOSIGNAL);
+#endif
         }
 
     public:
@@ -63,7 +63,7 @@ namespace kerberos
             if (port) open(port);
         }
 
-        ~Stream() 
+        ~Stream()
         {
             release();
         }
@@ -73,6 +73,7 @@ namespace kerberos
         bool isOpened();
         bool connect();
         void write(Image image);
+        static void base64_encode(const char *s, char *store, int length);
     };
 }
 #endif
