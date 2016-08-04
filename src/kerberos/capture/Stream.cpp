@@ -209,8 +209,9 @@ namespace kerberos
 
                         if (retval == 0 && error == 0)
                         {
-                            LINFO << "Writing to client " << i;
-                            _write(clients[i],(char*)(&outbuf[0]),outlen);
+                            LINFO << "Writing to client " << i << " bytes " << outlen;
+                            int status = _write(clients[i],(char*)(&outbuf[0]),outlen);
+                            LINFO << "Status " << status;
                         }
                     }
 
