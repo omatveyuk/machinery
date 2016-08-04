@@ -141,7 +141,7 @@ namespace kerberos
             }
 
         } else {
-            LERROR << "Authentication set and valid";
+            LINFO << "Authentication set and valid";
         }
 
         maxfd=(maxfd>client?maxfd:client);
