@@ -288,6 +288,7 @@ namespace kerberos
             }
             catch(cv::Exception & ex)
             {
+                LERROR << "streamContinuously exception";
                 pthread_mutex_unlock(&kerberos->m_streamLock);
             }
         }

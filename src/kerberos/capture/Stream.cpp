@@ -65,6 +65,7 @@ namespace kerberos
 
     bool Stream::connect()
     {
+        LINFO << "Inside connect()";
         fd_set rread = master;
         struct timeval to = {0,timeout};
         SOCKET maxfd = sock+1;
@@ -171,7 +172,7 @@ namespace kerberos
             // if not drop this shit..
             if(clients.size()==0)
             {
-                LINFO << "No client conncted. Will bail out";
+                LINFO << "No client connected. Will bail out";
                 return;
             }
 
