@@ -166,9 +166,14 @@ namespace kerberos
     {
         try
         {
+
             // Check if some clients connected
             // if not drop this shit..
-            if(clients.size()==0) return;
+            if(clients.size()==0)
+            {
+                LINFO << "No client conncted. Will bail out";
+                return;
+            }
 
             // Encode the image
             cv::Mat frame = image.getImage();
@@ -183,6 +188,7 @@ namespace kerberos
 
                 for(int i = 0; i < clients.size(); i++)
                 {
+                    LINFO << "Streaming to client " + i;
                     packetsSend[clients[i]]++;
 
                     int error = 0;
