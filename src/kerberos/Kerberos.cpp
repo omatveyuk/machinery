@@ -292,20 +292,22 @@ namespace kerberos
                 pthread_mutex_unlock(&kerberos->m_streamLock);
             }
         }
+
+        LINFO << "streamContinuously ended";
     }
     
     void Kerberos::startStreamThread()
     {
         // ------------------------------------------------
         // Start a new thread that streams MJPEG's continuously.
-        
+        /*
         if(stream == 0)
         {
             int port = 8888;
             LINFO << "Starting stream on port " + helper::to_string(port);
             stream = new Stream(port);
         }
-        
+        */
         pthread_create(&m_streamThread, NULL, streamContinuously, this);
     }
     
