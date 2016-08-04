@@ -60,6 +60,7 @@ namespace kerberos
 
     bool Stream::isOpened()
     {
+        LINFO << "Inside isOpened()";
         return sock != INVALID_SOCKET;
     }
 
