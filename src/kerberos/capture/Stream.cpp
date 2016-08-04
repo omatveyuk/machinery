@@ -190,7 +190,7 @@ namespace kerberos
 
                 for(int i = 0; i < clients.size(); i++)
                 {
-                    LINFO << "Streaming to client " + i;
+                    LINFO << "Streaming to client " << i;
                     packetsSend[clients[i]]++;
 
                     int error = 0;
@@ -199,6 +199,7 @@ namespace kerberos
 
                     if (retval == 0 && error == 0)
                     {
+                        LINFO << "Ready to write to client " << i;
                         char head[400];
                         sprintf(head,"--mjpegstream\r\nContent-Type: image/jpeg\r\nContent-Length: %lu\r\n\r\n",outlen);
 
@@ -208,12 +209,14 @@ namespace kerberos
 
                         if (retval == 0 && error == 0)
                         {
+                            LINFO << "Writing to client " << i;
                             _write(clients[i],(char*)(&outbuf[0]),outlen);
                         }
                     }
 
                     if (retval != 0 || error != 0)
                     {
+                        LINFO << "Error streaming to client " << i;
                         shutdown(clients[i], 2);
                         FD_CLR(clients[i],&master);
                         std::vector<int>::iterator position = std::find(clients.begin(), clients.end(), clients[i]);
