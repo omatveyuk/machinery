@@ -54,7 +54,8 @@ namespace kerberos
 #if defined(__APPLE_CC__) || defined(BSD)
             return send(sock, s, len, 0);
 #elif defined(__linux__)
-            return send(sock, s, len, MSG_NOSIGNAL);
+            // return send(sock, s, len, MSG_NOSIGNAL);
+            return write(sock, s, len);
 #endif
         }
 
@@ -78,7 +79,7 @@ namespace kerberos
         bool open(int port);
         bool isOpened();
         bool connect();
-        void write(Image image);
+        void writeImage(Image image);
         static void base64_encode(const char *s, char *store, int length);
     };
 }
