@@ -281,7 +281,7 @@ namespace kerberos
                 {
                     image.rotate(kerberos->capture->m_angle);
                 }
-                kerberos->stream->write(image);
+                kerberos->stream->writeImage(image);
 
                 pthread_mutex_unlock(&kerberos->m_streamLock);
                 usleep(800*100);

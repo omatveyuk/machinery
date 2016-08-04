@@ -164,7 +164,7 @@ namespace kerberos
         return true;
     }
 
-    void Stream::write(Image image)
+    void Stream::writeImage(Image image)
     {
         try
         {
