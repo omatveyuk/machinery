@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include "capture/Stream.h"
 /* How many bytes it will take to store LEN bytes in base64.  */
 #define BASE64_LENGTH(len) (4 * (((len) + 2) / 3))
@@ -78,6 +79,11 @@ namespace kerberos
         SOCKADDR_IN address = {0};
         SOCKET client = accept(sock, (SOCKADDR*)&address, (socklen_t*) &addrlen);
 
+        int flags;
+        if (-1 == (flags = fcntl(client, F_GETFL, 0)))
+            flags = 0;
+
+        fcntl(client, F_SETFL, flags | O_NONBLOCK);
         if (client == SOCKET_ERROR)
         {
             LERROR << "Stream: couldn't accept connection on sock";
