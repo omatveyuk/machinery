@@ -269,22 +269,25 @@ namespace kerberos
     {
         Kerberos * kerberos = (Kerberos *) self;
 
+
+
         while(kerberos->stream->isOpened())
         {
+
             try
             {
                 pthread_mutex_lock(&kerberos->m_streamLock);
+
                 kerberos->stream->connect();
+                    Image image = kerberos->capture->retrieve();
+                    if (kerberos->capture->m_angle != 0) {
+                        image.rotate(kerberos->capture->m_angle);
+                    }
+                    kerberos->stream->writeImage(image);
 
-                Image image = kerberos->capture->retrieve();
-                if(kerberos->capture->m_angle != 0)
-                {
-                    image.rotate(kerberos->capture->m_angle);
-                }
-                kerberos->stream->writeImage(image);
+                    pthread_mutex_unlock(&kerberos->m_streamLock);
+                    usleep(800 * 100);
 
-                pthread_mutex_unlock(&kerberos->m_streamLock);
-                usleep(800*100);
             }
             catch(cv::Exception & ex)
             {

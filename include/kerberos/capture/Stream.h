@@ -47,14 +47,15 @@ namespace kerberos
         std::string user;
         std::string password;
         int port;
-
+        int client_sent_quit_message;
         int _write( int sock, char *s, int len )
         {
             if ( len < 1 ) { len = strlen(s); }
 #if defined(__APPLE_CC__) || defined(BSD)
             return send(sock, s, len, 0);
 #elif defined(__linux__)
-            return send(sock, s, len, MSG_NOSIGNAL);
+            send(sock, s, len, MSG_NOSIGNAL);
+
 #endif
         }
 
@@ -66,6 +67,7 @@ namespace kerberos
             this->password = pass;
             this->user = user;
             this->port = port;
+            this->client_sent_quit_message = false;
             if (port) open(port);
         }
 
@@ -78,6 +80,8 @@ namespace kerberos
         bool open(int port);
         bool isOpened();
         bool connect();
+        bool disconnect();
+        int acceptnonblocking();
         void writeImage(Image image);
         static void base64_encode(const char *s, char *store, int length);
     };

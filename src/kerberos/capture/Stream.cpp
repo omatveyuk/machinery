@@ -7,7 +7,7 @@ namespace kerberos
 {
     static const char *request_auth_response_template=
             "HTTP/1.0 401 Authorization Required\r\n"
-                    "WWW-Authenticate: Basic realm=\"Motion Security Access\"\r\n";
+                    "WWW-Authenticate: Basic realm=\"Motion Security Access\"\r\n\r\n\r\n";
 
     bool Stream::release()
     {
@@ -65,6 +65,18 @@ namespace kerberos
         return sock != INVALID_SOCKET;
     }
 
+    bool Stream::disconnect() {
+        LINFO << "Inside disconnect()";
+        int n = close(sock);
+        if(!n) {//closed successfully
+            return 1;
+        }
+        usleep(100);
+
+        printf("Close failed for %d\n", sock);
+    }
+
+
     bool Stream::connect()
     {
         LINFO << "Inside connect()";
@@ -73,10 +85,12 @@ namespace kerberos
         SOCKET maxfd = sock+1;
 
         if(select( maxfd, &rread, NULL, NULL, &to ) <= 0)
-            return true;
+            return false;
 
         int addrlen = sizeof(SOCKADDR);
         SOCKADDR_IN address = {0};
+
+
         SOCKET client = accept(sock, (SOCKADDR*)&address, (socklen_t*) &addrlen);
 
         int flags;
@@ -92,6 +106,11 @@ namespace kerberos
             open(port);
             return false;
         }
+
+            maxfd=(maxfd>client?maxfd:client);
+
+            FD_SET( client, &master );
+
         const char* control_authentication = (this->user+ ":" + this->password).c_str();
 
         // lets try to authenticate
@@ -117,7 +136,7 @@ namespace kerberos
 
         LERROR << "Stream: done processing auth token";
 
-        printf("Authentication-found: %s %s %s", authentication, method, url);
+        printf("Buffer: %s %s %s", buffer, method, url);
         char * auth = NULL;
 
         if  (authentication != NULL)
@@ -132,28 +151,35 @@ namespace kerberos
                     char response[1024];
                     snprintf (response, sizeof (response),request_auth_response_template, method);
                     _write( client, response, strlen (response));
-                    return false;
+                    return true;
                 }
 
                 if (strcmp(auth, authentication)) {
                     LERROR << "Wrong username/password";
-                    return false;
+                    char response[1024]={'\0'};
+                    snprintf (response, sizeof (response),request_auth_response_template, method);
+
+                    printf("writing: %s %s %s", response, request_auth_response_template, method);
+                    warningkill = write (client, response, strlen (response));
+                    return true;
                 }
             } else {
                 LERROR << "Missing auth token";
                 // Request Authorization
                 char response[1024]={'\0'};
                 snprintf (response, sizeof (response),request_auth_response_template, method);
-                _write (client, response, strlen (response));
-                return false;
+
+                printf("writing: %s %s %s", response, request_auth_response_template, method);
+                warningkill = write (client, response, strlen (response));
+
+                return true;
             }
 
         } else {
             LINFO << "Authentication set and valid";
         }
 
-        maxfd=(maxfd>client?maxfd:client);
-        FD_SET( client, &master );
+
         _write( client,"HTTP/1.0 200 OK\r\n"
                 "Server: Mozarella/2.2\r\n"
                 "Accept-Range: bytes\r\n"
