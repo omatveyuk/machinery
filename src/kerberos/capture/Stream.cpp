@@ -229,6 +229,8 @@ namespace kerberos
                     socklen_t len = sizeof (error);
                     int retval = getsockopt(clients[i], SOL_SOCKET, SO_ERROR, &error, &len);
 
+
+
                     if (retval == 0 && error == 0)
                     {
                         LINFO << "Ready to write to client " << i;
@@ -239,11 +241,23 @@ namespace kerberos
 
                         retval = getsockopt(clients[i], SOL_SOCKET, SO_ERROR, &error, &len);
 
+                        int pos = 0;
                         if (retval == 0 && error == 0)
                         {
-                            LINFO << "Writing to client " << i << " bytes " << outlen;
-                            int status = _write(clients[i],(char*)(&outbuf[0]),outlen);
-                            LINFO << "Status " << status;
+                            while (true) {
+                                LINFO << "Writing to client " << i << " bytes " << outlen;
+                                int written = _write(clients[i], (char *) (&outbuf[pos]), outlen);
+                                if (written < 0 || outlen - written == 0) {
+                                    //LINFO << "Status " << written << "Closing";
+                                    //close(clients[i]);
+                                    break;
+                                }
+                                else {
+                                    LINFO << "Additonal chunk remaining " << outlen - written << " expecting " << outlen << "chunk " << written;
+                                    outlen = outlen - written;
+                                    pos += written;
+                                }
+                            }
                         }
                     }
 
