@@ -247,7 +247,7 @@ namespace kerberos
                             while (true) {
                                 LINFO << "Writing to client " << i << " bytes " << outlen;
                                 int written = _write(clients[i], (char *) (&outbuf[pos]), outlen);
-                                if (written < 0 || outlen - written == 0) {
+                                if (written < 0 || outlen - written <= 0) {
                                     //LINFO << "Status " << written << "Closing";
                                     //close(clients[i]);
                                     break;
