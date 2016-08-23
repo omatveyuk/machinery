@@ -258,7 +258,7 @@ namespace kerberos
                             int totalBytes = buffers[i].size() - pos[i];
 
                             while (totalBytes > 0) {
-                                LINFO << "Writing to client " << i << " bytes " << outlen;
+                                LINFO << "Writing to client " << i << " bytes " << totalBytes;
                                 // int written = _write(clients[i], (char *) (&outbuf[pos]), outlen);
                                 int count = _write(clients[i], (char *) (&buffers[i][pos[i]]), totalBytes);
 
