@@ -267,8 +267,8 @@ namespace kerberos
                                 if (count < 0 && lastError != 11) {
                                     // finish
                                     LINFO << "No more image data";
-                                    //written[i] = true;
-                                    //buffers[i].clear();
+                                    written[i] = true;
+                                    buffers[i].clear();
                                     break;
                                 }
                                 else if (count < 0 && lastError == 11) {
@@ -286,8 +286,10 @@ namespace kerberos
                                 }
                             }
 
-                            written[i] = true;
-                            buffers[i].clear();
+                            if (totalBytes == 0) {
+                                written[i] = true;
+                                buffers[i].clear();
+                            }
                         }
                     }
 		    // }
