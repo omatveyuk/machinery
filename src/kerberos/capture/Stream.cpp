@@ -273,12 +273,12 @@ namespace kerberos
                                 }
                                 else if (count < 0 && lastError == 11) {
                                     // buffer is full
-                                    LINFO << "EAGAIN "<< clients[i] << "with bytes remaining " << totalBytes;
+                                    LINFO << "EAGAIN "<< i << "with bytes remaining " << totalBytes;
                                     written[i] = false;
                                     break;
                                 }
                                 else {
-                                    LINFO << "Additonal chunk remaining " << totalBytes - count << " expecting " << outlen << "chunk " << count;
+                                    LINFO << "Additonal chunk remaining " << totalBytes - count << " expecting " << totalBytes << "chunk " << count;
                                     // totalBytes = totalBytes - count;
                                     pos[i] += count;
                                     written[i] = false;
@@ -286,9 +286,9 @@ namespace kerberos
                                 }
                             }
 
-                            LINFO << "FINISHED "<< clients[i] << "with bytes remaining " << totalBytes;
+                            LINFO << "FINISHED "<< i << "with bytes remaining " << totalBytes;
                             if (totalBytes == 0) {
-                                LINFO << "RESETTING "<< clients[i] << "with bytes remaining " << totalBytes;
+                                LINFO << "RESETTING "<< i << "with bytes remaining " << totalBytes;
                                 written[i] = true;
                                 buffers[i].clear();
                             }
