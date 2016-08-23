@@ -39,6 +39,9 @@ namespace kerberos
     class Stream
     {
         std::map<int, int> packetsSend;
+        std::map<int,  std::vector<uchar> > buffers;
+        std::map<int, int> pos;
+        std::map<int, bool> written;
         std::vector<SOCKET> clients;
         SOCKET sock;
         fd_set master;

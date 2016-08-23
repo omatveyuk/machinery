@@ -224,6 +224,14 @@ namespace kerberos
 
                 for(int i = 0; i < clients.size(); i++)
                 {
+                    // we are fully written
+                    if ( written[i] == true || buffers[i].empty()) {
+                        LINFO << "Refreshing buffer for client " << i;
+                        buffers[i] = outbuf;
+                        pos[i] = 0;
+                    }
+
+
                     LINFO << "Streaming to client " << i;
                     packetsSend[clients[i]]++;
 
@@ -244,28 +252,42 @@ namespace kerberos
 
                         retval = getsockopt(clients[i], SOL_SOCKET, SO_ERROR, &error, &len);
 
-                        int pos = 0;
+
                         if (retval == 0 && error == 0)
                         {
-                            while (outlen > 0) {
+                            int totalBytes = buffers[i].size() - pos[i];
+
+                            while (totalBytes > 0) {
                                 LINFO << "Writing to client " << i << " bytes " << outlen;
-                                int written = _write(clients[i], (char *) (&outbuf[pos]), outlen);
+                                // int written = _write(clients[i], (char *) (&outbuf[pos]), outlen);
+                                int count = _write(clients[i], (char *) (&buffers[i][pos[i]]), totalBytes);
 
-                                if (written < 0 ) {
-				    // retval = getsockopt(clients[i], SOL_SOCKET, SO_ERROR, &error, &len);
-   				    LINFO << errno;
-				    if (errno == 11) continue;
+                                int lastError = errno;
 
-                                    LINFO << "Status " << written << "Closing";
-                                    close(clients[i]);
+                                if (count < 0 && lastError != 11) {
+                                    // finish
+                                    LINFO << "No more image data";
+                                    //written[i] = true;
+                                    //buffers[i].clear();
+                                    break;
+                                }
+                                else if (count < 0 && lastError == 11) {
+                                    // buffer is full
+                                    LINFO << "EAGAIN";
+                                    written[i] = false;
                                     break;
                                 }
                                 else {
-                                    LINFO << "Additonal chunk remaining " << outlen - written << " expecting " << outlen << "chunk " << written;
-                                    outlen = outlen - written;
-                                    pos += written;
+                                    LINFO << "Additonal chunk remaining " << totalBytes - count << " expecting " << outlen << "chunk " << count;
+                                    // totalBytes = totalBytes - count;
+                                    pos[i] += count;
+                                    written[i] = false;
+                                    totalBytes = buffers[i].size() - pos[i];
                                 }
                             }
+
+                            written[i] = true;
+                            buffers[i].clear();
                         }
                     }
 		    // }
