@@ -273,7 +273,7 @@ namespace kerberos
                                 }
                                 else if (count < 0 && lastError == 11) {
                                     // buffer is full
-                                    LINFO << "EAGAIN";
+                                    LINFO << "EAGAIN "<< clients[i] << "with bytes remaining " << totalBytes;
                                     written[i] = false;
                                     break;
                                 }
@@ -286,7 +286,9 @@ namespace kerberos
                                 }
                             }
 
+                            LINFO << "FINISHED "<< clients[i] << "with bytes remaining " << totalBytes;
                             if (totalBytes == 0) {
+                                LINFO << "RESETTING "<< clients[i] << "with bytes remaining " << totalBytes;
                                 written[i] = true;
                                 buffers[i].clear();
                             }
