@@ -229,6 +229,8 @@ namespace kerberos
                         LINFO << "Refreshing buffer for client " << i;
                         buffers[i] = outbuf;
                         pos[i] = 0;
+                    } else {
+                        LINFO << "Processing existing buffer for client " << i << " remaining " << buffers[i].size() - pos[i];
                     }
 
 
