@@ -54,7 +54,7 @@ namespace kerberos
 #if defined(__APPLE_CC__) || defined(BSD)
             return send(sock, s, len, 0);
 #elif defined(__linux__)
-            send(sock, s, len, MSG_NOSIGNAL);
+            return send(sock, s, len, 0);
 
 #endif
         }

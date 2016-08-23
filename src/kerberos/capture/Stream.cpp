@@ -1,5 +1,7 @@
 #include <fcntl.h>
 #include "capture/Stream.h"
+#include "errno.h"
+
 /* How many bytes it will take to store LEN bytes in base64.  */
 #define BASE64_LENGTH(len) (4 * (((len) + 2) / 3))
 
@@ -230,6 +232,7 @@ namespace kerberos
                     int retval = getsockopt(clients[i], SOL_SOCKET, SO_ERROR, &error, &len);
 
 
+		    // while (outlen > 0) {
 
                     if (retval == 0 && error == 0)
                     {
@@ -244,12 +247,17 @@ namespace kerberos
                         int pos = 0;
                         if (retval == 0 && error == 0)
                         {
-                            while (true) {
+                            while (outlen > 0) {
                                 LINFO << "Writing to client " << i << " bytes " << outlen;
                                 int written = _write(clients[i], (char *) (&outbuf[pos]), outlen);
-                                if (written < 0 || outlen - written <= 0) {
-                                    //LINFO << "Status " << written << "Closing";
-                                    //close(clients[i]);
+
+                                if (written < 0 ) {
+				    // retval = getsockopt(clients[i], SOL_SOCKET, SO_ERROR, &error, &len);
+   				    LINFO << errno;
+				    if (errno == 11) continue;
+
+                                    LINFO << "Status " << written << "Closing";
+                                    close(clients[i]);
                                     break;
                                 }
                                 else {
@@ -260,6 +268,7 @@ namespace kerberos
                             }
                         }
                     }
+		    // }
 
                     if (retval != 0 || error != 0)
                     {
