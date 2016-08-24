@@ -222,7 +222,7 @@ namespace kerberos
                 cv::imencode(".jpg", frame, outbuf, params);
                 int outlen = outbuf.size();
 
-
+                bool newFrame = true;
                 for(int i = 0; i < clients.size(); i++)
                 {
                     // we are fully written
@@ -230,8 +230,10 @@ namespace kerberos
                         LINFO << "Refreshing buffer for client " << i;
                         buffers[i] = outbuf;
                         pos[i] = 0;
+                        newFrame = true;
                     } else {
                         LINFO << "Processing existing buffer for client " << i << " remaining " << buffers[i].size() - pos[i];
+                        newFrame = false;
                     }
 
 
@@ -248,8 +250,8 @@ namespace kerberos
                     if (retval == 0 && error == 0)
                     {
                         // new image is being sent?
-                        if (pos[i] = 0) {
-                            LINFO << "Ready to write to client " << i;
+                        if (newFrame) {
+                            LINFO << "Write new frame to client " << i;
                             char head[400];
                             sprintf(head, "--mjpegstream\r\nContent-Type: image/jpeg\r\nContent-Length: %lu\r\n\r\n",
                                     outlen);
