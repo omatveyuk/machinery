@@ -222,6 +222,7 @@ namespace kerberos
                 cv::imencode(".jpg", frame, outbuf, params);
                 int outlen = outbuf.size();
 
+
                 for(int i = 0; i < clients.size(); i++)
                 {
                     // we are fully written
@@ -246,14 +247,17 @@ namespace kerberos
 
                     if (retval == 0 && error == 0)
                     {
-                        LINFO << "Ready to write to client " << i;
-                        char head[400];
-                        sprintf(head,"--mjpegstream\r\nContent-Type: image/jpeg\r\nContent-Length: %lu\r\n\r\n",outlen);
+                        // new image is being sent?
+                        if (pos[i] = 0) {
+                            LINFO << "Ready to write to client " << i;
+                            char head[400];
+                            sprintf(head, "--mjpegstream\r\nContent-Type: image/jpeg\r\nContent-Length: %lu\r\n\r\n",
+                                    outlen);
 
-                        _write(clients[i],head,0);
+                            _write(clients[i], head, 0);
 
-                        retval = getsockopt(clients[i], SOL_SOCKET, SO_ERROR, &error, &len);
-
+                            retval = getsockopt(clients[i], SOL_SOCKET, SO_ERROR, &error, &len);
+                        }
 
                         if (retval == 0 && error == 0)
                         {
