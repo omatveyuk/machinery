@@ -15,8 +15,8 @@ namespace kerberos
     {
         for(int i = 0; i < clients.size(); i++)
         {
-            shutdown(clients[i], 2);
-            FD_CLR(clients[i],&master);
+            shutdown(clients[i].getSocket(), 2);
+            FD_CLR(clients[i].getSocket(), &master);
         }
 
         clients.clear();
@@ -95,6 +95,8 @@ namespace kerberos
 
         SOCKET client = accept(sock, (SOCKADDR*)&address, (socklen_t*) &addrlen);
 
+        Client myclient(client);
+
         int flags;
         if (-1 == (flags = fcntl(client, F_GETFL, 0)))
             flags = 0;
@@ -133,7 +135,7 @@ namespace kerberos
 
         unsigned short int length = 1023;
         char buffer[1024] = {'\0'};
-        int nread = read (client, buffer, length);
+        int nread = read (myclient.getSocket(), buffer, length);
         int warningkill = sscanf (buffer, "%9s %511s %9s", method, url, protocol);
 
         LERROR << "Stream: done processing auth token";
@@ -152,7 +154,7 @@ namespace kerberos
                     LERROR << "Auth token not found";
                     char response[1024];
                     snprintf (response, sizeof (response),request_auth_response_template, method);
-                    _write( client, response, strlen (response));
+                    _write( myclient.getSocket(), response, strlen (response));
                     return true;
                 }
 
@@ -162,7 +164,7 @@ namespace kerberos
                     snprintf (response, sizeof (response),request_auth_response_template, method);
 
                     printf("writing: %s %s %s", response, request_auth_response_template, method);
-                    warningkill = write (client, response, strlen (response));
+                    warningkill = write (myclient.getSocket(), response, strlen (response));
                     return true;
                 }
             } else {
@@ -172,7 +174,7 @@ namespace kerberos
                 snprintf (response, sizeof (response),request_auth_response_template, method);
 
                 printf("writing: %s %s %s", response, request_auth_response_template, method);
-                warningkill = write (client, response, strlen (response));
+                warningkill = write (myclient.getSocket(), response, strlen (response));
 
                 return true;
             }
@@ -192,8 +194,8 @@ namespace kerberos
                 "Content-Type: multipart/x-mixed-replace; boundary=mjpegstream\r\n"
                 "\r\n",0);
 
-        clients.push_back(client);
-        packetsSend[client] = 0;
+        clients.push_back(myclient);
+        packetsSend[myclient.getSocket()] = 0;
 
         return true;
     }
@@ -238,11 +240,11 @@ namespace kerberos
 
 
                     LINFO << "Streaming to client " << i;
-                    packetsSend[clients[i]]++;
+                    packetsSend[clients[i].getSocket()]++;
 
                     int error = 0;
                     socklen_t len = sizeof (error);
-                    int retval = getsockopt(clients[i], SOL_SOCKET, SO_ERROR, &error, &len);
+                    int retval = getsockopt(clients[i].getSocket(), SOL_SOCKET, SO_ERROR, &error, &len);
 
 
 		    // while (outlen > 0) {
@@ -256,9 +258,9 @@ namespace kerberos
                             sprintf(head, "--mjpegstream\r\nContent-Type: image/jpeg\r\nContent-Length: %lu\r\n\r\n",
                                     outlen);
 
-                            _write(clients[i], head, 0);
+                            _write(clients[i].getSocket(), head, 0);
 
-                            retval = getsockopt(clients[i], SOL_SOCKET, SO_ERROR, &error, &len);
+                            retval = getsockopt(clients[i].getSocket(), SOL_SOCKET, SO_ERROR, &error, &len);
                         }
 
                         if (retval == 0 && error == 0)
@@ -268,7 +270,7 @@ namespace kerberos
                             while (totalBytes > 0) {
                                 LINFO << "Writing to client " << i << " bytes " << totalBytes;
                                 // int written = _write(clients[i], (char *) (&outbuf[pos]), outlen);
-                                int count = _write(clients[i], (char *) (&buffers[i][pos[i]]), totalBytes);
+                                int count = _write(clients[i].getSocket(), (char *) (&buffers[i][pos[i]]), totalBytes);
 
                                 int lastError = errno;
 
@@ -307,9 +309,9 @@ namespace kerberos
                     if (retval != 0 || error != 0)
                     {
                         LINFO << "Error streaming to client " << i;
-                        shutdown(clients[i], 2);
-                        FD_CLR(clients[i],&master);
-                        std::vector<int>::iterator position = std::find(clients.begin(), clients.end(), clients[i]);
+                        shutdown(clients[i].getSocket(), 2);
+                        FD_CLR(clients[i].getSocket(),&master);
+                        std::vector<Client>::iterator position = std::find(clients.begin(), clients.end(), clients[i]);
                         if (position != clients.end())
                         {
                             clients.erase(position);

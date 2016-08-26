@@ -10,11 +10,13 @@ namespace kerberos {
     class Client {
     private:
         SOCKET m_socket;
-    public:
+
     public:
 
-        Client(SOCKET socket) { m_socket = socket;}
-        SOCKET & getSocket() {return m_socket;};
+        Client(SOCKET socket);
+        SOCKET getSocket() const;
+        friend bool operator==(const Client& x, const Client& y);
+        friend bool operator!=(const Client& x, const Client& y);
     };
 }
 #endif //KERBEROS_CLIENT_H

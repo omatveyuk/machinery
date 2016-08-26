@@ -8,6 +8,7 @@
         capture/Capture.cpp
         capture/Stream.cpp
         capture/Image.cpp
+            capture/Client.cpp
         machinery/Machinery.cpp
         machinery/condition/Condition.cpp
         machinery/algorithm/Algorithm.cpp

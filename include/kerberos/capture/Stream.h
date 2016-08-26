@@ -14,6 +14,7 @@
 
 #include "Factory.h"
 #include "capture/Image.h"
+#include "capture/Client.h"
 
 #ifndef __Stream_H_INCLUDED__   // if Stream.h hasn't been included yet...
 #define __Stream_H_INCLUDED__   // #define this so the compiler knows it has been included
@@ -42,7 +43,7 @@ namespace kerberos
         std::map<int,  std::vector<uchar> > buffers;
         std::map<int, int> pos;
         std::map<int, bool> written;
-        std::vector<SOCKET> clients;
+        std::vector<Client> clients;
         SOCKET sock;
         fd_set master;
         int timeout; // master sock timeout, shutdown after timeout millis.
